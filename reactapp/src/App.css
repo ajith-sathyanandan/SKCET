@@ -1,0 +1,116 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: 24px 8%;
+  color: white;
+  background: #172554;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.app-header h1,
+.app-header p {
+  margin: 0;
+}
+
+.app-header p {
+  margin-top: 6px;
+  color: #cbd5e1;
+}
+
+.app-navigation {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-link {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nav-link-active {
+  color: white;
+}
+
+.app-content {
+  flex: 1;
+  padding: 64px 8%;
+}
+
+.hero-section {
+  max-width: 760px;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: #1d4ed8;
+  background: #dbeafe;
+  font-weight: 700;
+}
+
+.hero-section h2 {
+  margin: 22px 0 14px;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.1;
+}
+
+.hero-section p {
+  color: #475569;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.status-card {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-card span {
+  color: #15803d;
+}
+
+.not-found-page {
+  text-align: center;
+}
+
+.not-found-page h2 {
+  margin: 0;
+  font-size: 5rem;
+}
+
+.not-found-page a {
+  color: #1d4ed8;
+}
+
+.app-footer {
+  padding: 18px 8%;
+  color: #64748b;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-content {
+    padding-top: 40px;
+  }
+}
