@@ -38,6 +38,47 @@ export function AuthProvider({ children }) {
     return authService.register(registration);
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    const updatedUser = await authService.getProfile();
+
+    setSession((currentSession) => {
+      if (!currentSession) {
+        return currentSession;
+      }
+
+      const nextSession = {
+        ...currentSession,
+        user: updatedUser,
+      };
+
+      saveSession(nextSession);
+
+      return nextSession;
+    });
+
+    return updatedUser;
+  }, []);
+
+  const updateProfile = useCallback(async (profile) => {
+    const response = await authService.updateProfile(profile);
+
+    const nextSession = {
+      accessToken: response.accessToken,
+      tokenType: response.tokenType ?? "Bearer",
+      expiresAt: Date.now() + response.expiresIn * 1000,
+      user: response.user,
+    };
+
+    saveSession(nextSession);
+    setSession(nextSession);
+
+    return response.user;
+  }, []);
+
+  const changePassword = useCallback((passwords) => {
+    return authService.changePassword(passwords);
+  }, []);
+
   const logout = useCallback(() => {
     clearSession();
     setSession(null);
@@ -50,9 +91,20 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(session?.accessToken),
       login,
       register,
+      refreshProfile,
+      updateProfile,
+      changePassword,
       logout,
     }),
-    [session, login, register, logout],
+    [
+      session,
+      login,
+      register,
+      refreshProfile,
+      updateProfile,
+      changePassword,
+      logout,
+    ],
   );
 
   return (

@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import OwnerPage from "./pages/OwnerPage";
+import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import RestaurantDetailsPage from "./pages/RestaurantDetailsPage";
 import RestaurantDiscoveryPage from "./pages/RestaurantDiscoveryPage";
@@ -26,6 +27,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="profile" element={<ProfilePage />} />
 
           <Route
             path="restaurants"
