@@ -2,34 +2,40 @@ package com.skcet.restaurantreservation.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import com.skcet.restaurantreservation.dto.RestaurantDetailsResponse;
 import com.skcet.restaurantreservation.dto.RestaurantRequest;
 import com.skcet.restaurantreservation.dto.RestaurantResponse;
 import com.skcet.restaurantreservation.entity.Restaurant;
+import com.skcet.restaurantreservation.entity.RestaurantTable;
 import com.skcet.restaurantreservation.entity.User;
 import com.skcet.restaurantreservation.entity.UserRole;
 import com.skcet.restaurantreservation.exception.InvalidRestaurantOwnerException;
 import com.skcet.restaurantreservation.exception.RestaurantAccessDeniedException;
 import com.skcet.restaurantreservation.exception.RestaurantNotFoundException;
 import com.skcet.restaurantreservation.repository.RestaurantRepository;
+import com.skcet.restaurantreservation.repository.RestaurantTableRepository;
 import com.skcet.restaurantreservation.repository.UserRepository;
 
 @Service
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
     private final UserRepository userRepository;
 
     public RestaurantService(
             RestaurantRepository restaurantRepository,
+            RestaurantTableRepository restaurantTableRepository,
             UserRepository userRepository
     ) {
         this.restaurantRepository = restaurantRepository;
+        this.restaurantTableRepository = restaurantTableRepository;
         this.userRepository = userRepository;
     }
 
@@ -59,27 +65,45 @@ public class RestaurantService {
 
     @Transactional(readOnly = true)
     public List<RestaurantResponse> findAll() {
-        return restaurantRepository
-                .findAll(Sort.by("name").ascending())
-                .stream()
-                .map(RestaurantResponse::from)
-                .toList();
+        return discover(null, null, null);
     }
 
     @Transactional(readOnly = true)
-    public RestaurantResponse findById(Long id) {
-        return RestaurantResponse.from(findRestaurant(id));
-    }
-
-    @Transactional(readOnly = true)
-    public List<RestaurantResponse> findByCuisine(String cuisine) {
+    public List<RestaurantResponse> discover(
+            String search,
+            String cuisine,
+            String location
+    ) {
         return restaurantRepository
-                .findByCuisineTypeIgnoreCaseOrderByNameAsc(
-                        cuisine.trim()
+                .discover(
+                        normalize(search),
+                        normalize(cuisine),
+                        normalize(location)
                 )
                 .stream()
                 .map(RestaurantResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RestaurantDetailsResponse findById(Long id) {
+        Restaurant restaurant = findRestaurant(id);
+
+        List<RestaurantTable> tables =
+                restaurantTableRepository
+                        .findByRestaurant_IdOrderByTableNumberAsc(id);
+
+        return RestaurantDetailsResponse.from(
+                restaurant,
+                tables
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<RestaurantResponse> findByCuisine(
+            String cuisine
+    ) {
+        return discover(null, cuisine, null);
     }
 
     @Transactional
@@ -129,6 +153,12 @@ public class RestaurantService {
                 .orElseThrow(
                         () -> new RestaurantNotFoundException(id)
                 );
+    }
+
+    private String normalize(String value) {
+        return StringUtils.hasText(value)
+                ? value.trim()
+                : null;
     }
 
     private User getCurrentUser() {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.skcet.restaurantreservation.dto.RestaurantDetailsResponse;
 import com.skcet.restaurantreservation.dto.RestaurantRequest;
 import com.skcet.restaurantreservation.dto.RestaurantResponse;
 import com.skcet.restaurantreservation.service.RestaurantService;
@@ -46,18 +49,45 @@ public class RestaurantController {
     }
 
     @GetMapping
-    public List<RestaurantResponse> findAll() {
-        return restaurantService.findAll();
+    @PreAuthorize("isAuthenticated()")
+    public List<RestaurantResponse> findAll(
+            @RequestParam(required = false)
+            String search,
+
+            @RequestParam(
+                    name = "q",
+                    required = false
+            )
+            String query,
+
+            @RequestParam(required = false)
+            String cuisine,
+
+            @RequestParam(required = false)
+            String location
+    ) {
+        String effectiveSearch =
+                StringUtils.hasText(search)
+                        ? search
+                        : query;
+
+        return restaurantService.discover(
+                effectiveSearch,
+                cuisine,
+                location
+        );
     }
 
     @GetMapping("/{id}")
-    public RestaurantResponse findById(
+    @PreAuthorize("isAuthenticated()")
+    public RestaurantDetailsResponse findById(
             @PathVariable Long id
     ) {
         return restaurantService.findById(id);
     }
 
     @GetMapping("/cuisine/{cuisine}")
+    @PreAuthorize("isAuthenticated()")
     public List<RestaurantResponse> findByCuisine(
             @PathVariable String cuisine
     ) {
