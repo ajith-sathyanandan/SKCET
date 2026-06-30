@@ -52,6 +52,13 @@ function AppLayout() {
                 Restaurants
               </NavLink>
 
+              <NavLink
+                to="/profile"
+                className={getLinkClass}
+              >
+                Profile
+              </NavLink>
+
               {canAccessOwner && (
                 <NavLink
                   to="/owner"
