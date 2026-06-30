@@ -28,30 +28,51 @@ function AppLayout() {
           </span>
         </NavLink>
 
-        <nav className="app-navigation" aria-label="Main navigation">
+        <nav
+          className="app-navigation"
+          aria-label="Main navigation"
+        >
           <NavLink to="/" className={getLinkClass}>
             Home
           </NavLink>
 
           {isAuthenticated ? (
             <>
-              <NavLink to="/dashboard" className={getLinkClass}>
+              <NavLink
+                to="/dashboard"
+                className={getLinkClass}
+              >
                 Dashboard
               </NavLink>
 
+              <NavLink
+                to="/restaurants"
+                className={getLinkClass}
+              >
+                Restaurants
+              </NavLink>
+
               {canAccessOwner && (
-                <NavLink to="/owner" className={getLinkClass}>
+                <NavLink
+                  to="/owner"
+                  className={getLinkClass}
+                >
                   Owner
                 </NavLink>
               )}
 
               {user?.role === "ADMIN" && (
-                <NavLink to="/admin" className={getLinkClass}>
+                <NavLink
+                  to="/admin"
+                  className={getLinkClass}
+                >
                   Admin
                 </NavLink>
               )}
 
-              <span className="role-badge">{user?.role}</span>
+              <span className="role-badge">
+                {user?.role}
+              </span>
 
               <button
                 type="button"
@@ -63,9 +84,13 @@ function AppLayout() {
             </>
           ) : (
             <>
-              <NavLink to="/login" className={getLinkClass}>
+              <NavLink
+                to="/login"
+                className={getLinkClass}
+              >
                 Log in
               </NavLink>
+
               <NavLink
                 to="/register"
                 className="nav-link nav-link-primary"

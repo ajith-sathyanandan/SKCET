@@ -10,6 +10,8 @@ import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import OwnerPage from "./pages/OwnerPage";
 import RegisterPage from "./pages/RegisterPage";
+import RestaurantDetailsPage from "./pages/RestaurantDetailsPage";
+import RestaurantDiscoveryPage from "./pages/RestaurantDiscoveryPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import "./App.css";
 
@@ -24,6 +26,16 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
+
+          <Route
+            path="restaurants"
+            element={<RestaurantDiscoveryPage />}
+          />
+
+          <Route
+            path="restaurants/:restaurantId"
+            element={<RestaurantDetailsPage />}
+          />
 
           <Route
             element={
