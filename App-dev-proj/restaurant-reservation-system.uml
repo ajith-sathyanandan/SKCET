@@ -1,0 +1,243 @@
+' Reference image: uploaded feasibility analysis screenshot requesting 4 UML diagrams
+' Scope mapped from the current backend package: com.examly.springapp
+
+@startuml ER_Diagram
+title Restaurant Reservation System - ER Diagram
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+
+entity "Restaurant" as Restaurant {
+  * id : Long
+  --
+  name : String
+  address : String
+  cuisine : String
+  openingTime : LocalTime
+  closingTime : LocalTime
+  totalTables : Integer
+}
+
+entity "Reservation" as Reservation {
+  * id : Long
+  --
+  customerName : String
+  customerEmail : String
+  customerPhone : String
+  reservationDate : LocalDate
+  reservationTime : LocalTime
+  partySize : Integer
+  status : ReservationStatus
+  specialRequests : String
+  restaurantId : Long
+}
+
+Restaurant ||--o{ Reservation : "has"
+
+note right of Reservation
+  ReservationStatus values:
+  PENDING
+  CONFIRMED
+  CANCELLED
+end note
+
+@enduml
+
+@startuml Class_Diagram
+title Restaurant Reservation System - Class Diagram
+
+skinparam linetype ortho
+skinparam shadowing false
+
+package "com.examly.springapp.model" {
+  class Restaurant {
+    - id : Long
+    - name : String
+    - address : String
+    - cuisine : String
+    - openingTime : LocalTime
+    - closingTime : LocalTime
+    - totalTables : Integer
+    + builder() : Builder
+    + getId() : Long
+    + setId(id : Long) : void
+    + getName() : String
+    + setName(name : String) : void
+    + getAddress() : String
+    + setAddress(address : String) : void
+    + getCuisine() : String
+    + setCuisine(cuisine : String) : void
+    + getOpeningTime() : LocalTime
+    + setOpeningTime(openingTime : LocalTime) : void
+    + getClosingTime() : LocalTime
+    + setClosingTime(closingTime : LocalTime) : void
+    + getTotalTables() : Integer
+    + setTotalTables(totalTables : Integer) : void
+  }
+
+  class Reservation {
+    - id : Long
+    - restaurant : Restaurant
+    - customerName : String
+    - customerEmail : String
+    - customerPhone : String
+    - reservationDate : LocalDate
+    - reservationTime : LocalTime
+    - partySize : Integer
+    - status : ReservationStatus
+    - specialRequests : String
+    + builder() : Builder
+    + getId() : Long
+    + setId(id : Long) : void
+    + getRestaurant() : Restaurant
+    + setRestaurant(restaurant : Restaurant) : void
+    + getCustomerName() : String
+    + setCustomerName(customerName : String) : void
+    + getCustomerEmail() : String
+    + setCustomerEmail(customerEmail : String) : void
+    + getCustomerPhone() : String
+    + setCustomerPhone(customerPhone : String) : void
+    + getReservationDate() : LocalDate
+    + setReservationDate(reservationDate : LocalDate) : void
+    + getReservationTime() : LocalTime
+    + setReservationTime(reservationTime : LocalTime) : void
+    + getPartySize() : Integer
+    + setPartySize(partySize : Integer) : void
+    + getStatus() : ReservationStatus
+    + setStatus(status : ReservationStatus) : void
+    + getSpecialRequests() : String
+    + setSpecialRequests(specialRequests : String) : void
+  }
+
+  enum ReservationStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+  }
+}
+
+package "com.examly.springapp.repository" {
+  interface RestaurantRepository {
+    + save(restaurant : Restaurant) : Restaurant
+    + findAll() : List<Restaurant>
+    + findById(id : Long) : Optional<Restaurant>
+    + findByCuisineIgnoreCase(cuisine : String) : List<Restaurant>
+  }
+
+  interface ReservationRepository {
+    + save(reservation : Reservation) : Reservation
+    + findAll() : List<Reservation>
+    + findById(id : Long) : Optional<Reservation>
+    + findByRestaurant_IdAndReservationDate(restaurantId : Long, reservationDate : LocalDate) : List<Reservation>
+    + delete(reservation : Reservation) : void
+  }
+}
+
+package "com.examly.springapp.service" {
+  class RestaurantService {
+    - restaurantRepository : RestaurantRepository
+    + createRestaurant(restaurant : Restaurant) : Restaurant
+    + getAllRestaurants() : List<Restaurant>
+    + getRestaurantById(id : Long) : Restaurant
+    + searchByCuisine(cuisine : String) : List<Restaurant>
+  }
+
+  class ReservationService {
+    - reservationRepository : ReservationRepository
+    - restaurantRepository : RestaurantRepository
+    + createReservation(reservation : Reservation, restaurantId : Long) : Reservation
+    + getAllReservations() : List<Reservation>
+    + updateReservationStatus(id : Long, status : ReservationStatus) : Reservation
+    + cancelReservation(id : Long) : void
+  }
+}
+
+package "com.examly.springapp.controller" {
+  class RestaurantController {
+    - restaurantService : RestaurantService
+    + createRestaurant(restaurant : Restaurant) : Restaurant
+    + getAllRestaurants() : List<Restaurant>
+    + getRestaurantById(id : Long) : Restaurant
+    + searchByCuisine(cuisine : String) : List<Restaurant>
+  }
+
+  class ReservationController {
+    - reservationService : ReservationService
+    + createReservation(reservation : Reservation, restaurantId : Long) : Reservation
+    + getAllReservations() : List<Reservation>
+    + updateReservationStatus(id : Long, status : ReservationStatus) : Reservation
+    + cancelReservation(id : Long) : void
+  }
+}
+
+class ResourceNotFoundException
+
+Restaurant "1" -- "0..*" Reservation
+RestaurantController --> RestaurantService
+ReservationController --> ReservationService
+RestaurantService --> RestaurantRepository
+ReservationService --> ReservationRepository
+ReservationService --> RestaurantRepository
+RestaurantRepository <|.. InMemoryRestaurantRepository
+ReservationRepository <|.. InMemoryReservationRepository
+RestaurantService ..> ResourceNotFoundException
+ReservationService ..> ResourceNotFoundException
+Reservation --> ReservationStatus
+
+@enduml
+
+@startuml Activity_Create_Reservation
+title Activity Diagram - Create Reservation
+
+start
+:Customer submits reservation request;
+:Receive reservation details and restaurantId;
+:Look up restaurant by restaurantId;
+
+if (Restaurant found?) then (yes)
+  :Attach restaurant to reservation;
+
+  if (Reservation status empty?) then (yes)
+    :Set status to PENDING;
+  endif
+
+  :Check existing reservations for same restaurant and date;
+  :Save reservation;
+  :Return created reservation;
+else (no)
+  :Throw ResourceNotFoundException;
+endif
+
+stop
+@enduml
+
+@startuml Sequence_Create_Reservation
+title Sequence Diagram - Create Reservation
+
+actor Client
+participant "ReservationController" as RC
+participant "ReservationService" as RS
+participant "RestaurantRepository" as RR
+participant "ReservationRepository" as ResRepo
+
+Client -> RC : POST /api/reservations/restaurant/{restaurantId}
+RC -> RS : createReservation(reservation, restaurantId)
+RS -> RR : findById(restaurantId)
+RR --> RS : Restaurant / empty
+
+alt restaurant found
+  RS -> RS : setRestaurant(...)
+  RS -> RS : setStatus(PENDING) if null
+  RS -> ResRepo : findByRestaurant_IdAndReservationDate(...)
+  ResRepo --> RS : existing reservations
+  RS -> ResRepo : save(reservation)
+  ResRepo --> RS : saved reservation
+  RS --> RC : reservation
+  RC --> Client : 200 OK
+else restaurant missing
+  RS --> RC : ResourceNotFoundException
+  RC --> Client : 404 Not Found
+end
+
+@enduml

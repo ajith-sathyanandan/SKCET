@@ -1,0 +1,231 @@
+[
+  {
+    "step": "Read and Analyze pom.xml for Spring Boot Backend Dependencies",
+    "sub_steps": [
+      "Open and review /home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/pom.xml.",
+      "Identify core dependencies (Spring Web, Spring Data JPA, MySQL Connector, Lombok, Validation API).",
+      "Check for versions and confirm MySQL (no H2 fallback) compliance."
+    ],
+    "files_to_add": [],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/pom.xml"
+    ],
+    "description": "Established knowledge of backend dependencies. This step ensures that the environment is compatible and dependencies for entities, repositories, validation, and controllers are present. Guides subsequent implementation strategy."
+  },
+  {
+    "step": "Implement Backend Domain Entities: Restaurant and Reservation",
+    "sub_steps": [
+      "Create Restaurant and Reservation entity classes under com.examly.springapp.model.",
+      "Configure fields and validation annotations as per requirements (e.g., @NotNull, @Size, @Email, @Min, @Max).",
+      "Setup relationships: Restaurant has many Reservations; Reservation references Restaurant.",
+      "Add constructors, getters, setters (use Lombok's @Data, @NoArgsConstructor, @AllArgsConstructor).",
+      "Set enum for Reservation status (PENDING, CONFIRMED, REJECTED) for type safety."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/model/Restaurant.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/model/Reservation.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/model/ReservationStatus.java"
+    ],
+    "files_to_edit": [],
+    "description": "Defines the database model, ensures correct data schema, validation, and relationship mapping critical for the system's integrity and test support (used by service, repository, and controller layers)."
+  },
+  {
+    "step": "Implement JPA Repositories for Restaurant and Reservation",
+    "sub_steps": [
+      "Create RestaurantRepository and ReservationRepository under com.examly.springapp.repository.",
+      "Extend JpaRepository for each.",
+      "Add custom query methods (findByNameIgnoreCase, findByCuisineIgnoreCase for Restaurant; findByRestaurantId, findByStatus, findByCustomerEmail, findByRestaurantIdAndReservationDate for Reservation).",
+      "Use naming convention for Spring Data JPA to auto-generate queries."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/repository/RestaurantRepository.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/repository/ReservationRepository.java"
+    ],
+    "files_to_edit": [],
+    "description": "Establishes the data access layer, enabling all necessary database operations and custom queries required by services and for backend test cases."
+  },
+  {
+    "step": "Implement Backend Service Layer for Restaurant and Reservation",
+    "sub_steps": [
+      "Create RestaurantService and ReservationService under com.examly.springapp.service.",
+      "RestaurantService: CRUD for Restaurant, search by cuisine, with validation and exception handling.",
+      "ReservationService: Create with validation (opening/closing hours, table availability, auto-set PENDING), fetch by criteria, update status, cancel (delete).",
+      "Business logic: Calculate used tables for a given time; enforce requested reservation time slot has capacity.",
+      "Custom exceptions for not found, validation failures."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/service/RestaurantService.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/service/ReservationService.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/exception/ResourceNotFoundException.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/exception/ValidationException.java"
+    ],
+    "files_to_edit": [],
+    "description": "Implements core business logic for back-end. All backend test cases interact with or depend on these methods for functional and validation checks."
+  },
+  {
+    "step": "Implement REST Controllers for Restaurant and Reservation",
+    "sub_steps": [
+      "Create RestaurantController and ReservationController under com.examly.springapp.controller.",
+      "Expose endpoints as per the requirements: CRUD for restaurants, search by cuisine; create, list, update status, and delete for reservations.",
+      "Handle validation, exceptions, and provide appropriate HTTP status codes and error messages (400, 404, 201, 200, 204).",
+      "Use @CrossOrigin to allow CORS for frontend integration."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/controller/RestaurantController.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/controller/ReservationController.java"
+    ],
+    "files_to_edit": [],
+    "description": "Enables HTTP REST access for all front-end and testing use-cases; strictly matches endpoint/contract requirements. Directly supports test cases for error handling, validation, and CRUD operations."
+  },
+  {
+    "step": "Add Global Exception Handling and CORS Configuration",
+    "sub_steps": [
+      "Implement a @ControllerAdvice class for handling ValidationException, ResourceNotFoundException, and generic exceptions.",
+      "Add global CORS configuration for allowing cross-origin requests from the frontend.",
+      "Ensure all error responses match required format for frontend and test cases."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/exception/GlobalExceptionHandler.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/main/java/com/examly/springapp/config/CorsConfig.java"
+    ],
+    "files_to_edit": [],
+    "description": "Provides standardized error handling for negative test cases, and ensures smooth backend-frontend integration through CORS headers."
+  },
+  {
+    "step": "Implement ALL Provided Backend JUnit Test Cases",
+    "sub_steps": [
+      "For each of the following JUnit test cases, implement corresponding methods:",
+      "- testCreateRestaurant: Cover creation logic, verify fields and repository behaviors.",
+      "- testFindRestaurantByCuisine: Cover search by cuisine using mocked repo.",
+      "- testCreateReservationWithValidData: Cover reservation logic with valid data, status, and fields.",
+      "- testCreateReservationOutsideOpeningHours: Test validation error for reservation outside opening hours.",
+      "- testUpdateReservationStatus: Test status update logic, correct repository saves.",
+      "Use mocking (e.g., Mockito) for repositories and dependencies.",
+      "Assert correct values, error messages, and exceptions as expected.",
+      "Place all test classes in /test/java/com/examly/springapp/ directory structure."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/test/java/com/examly/springapp/service/RestaurantServiceTest.java",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/springapp/src/test/java/com/examly/springapp/service/ReservationServiceTest.java"
+    ],
+    "files_to_edit": [],
+    "description": "Achieves complete backend unit test coverage as per requirements. Each test verifies business logic, error conditions, and CRUD operations. Mocks repositories for isolation."
+  },
+  {
+    "step": "Compile and Test Backend (Spring Boot)",
+    "sub_steps": [
+      "Run mvn clean compile -q -Dspring.main.banner-mode=off to build and check code for compilation errors.",
+      "Run mvn test -q -Dspring.main.banner-mode=off to execute all backend tests and verify passing."
+    ],
+    "files_to_add": [],
+    "files_to_edit": [],
+    "description": "Confirms backend implementation is correct and tests pass. Validates both functional and test code is production-ready before starting frontend work."
+  },
+  {
+    "step": "Read and Analyze package.json for React Frontend Dependencies",
+    "sub_steps": [
+      "Open /home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/package.json.",
+      "Identify available libraries (react, react-router-dom, testing-library, etc.).",
+      "Check available scripts for build/testing (test:ci, build, lint, etc.).",
+      "Ensure project structure is standard (src/components, etc.)."
+    ],
+    "files_to_add": [],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/package.json"
+    ],
+    "description": "Allows planning of frontend component implementation and API integration based on available dependencies."
+  },
+  {
+    "step": "Implement Frontend Restaurant UI Components",
+    "sub_steps": [
+      "Create components for RestaurantList, RestaurantDetail, RestaurantSearch under src/components.",
+      "RestaurantList: Display all restaurants, show name, cuisine, opening/closing, with 'Book Table' button.",
+      "RestaurantDetail: Show full details and embed ReservationForm.",
+      "RestaurantSearch: Input + button to filter by cuisine, show results.",
+      "Apply responsive, card-based CSS with CSS variables as per spec.",
+      "Use React Router for navigation: '/' for list, '/restaurants/:id' for details.",
+      "Prepare data-testid attributes for testing strictness."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/RestaurantList.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/RestaurantDetail.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/RestaurantSearch.js"
+    ],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/App.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/App.css"
+    ],
+    "description": "These components support restaurant-related functionality including search and detail navigation. Strict UI and test selector requirements are met for test coverage."
+  },
+  {
+    "step": "Implement Frontend Reservation UI Components",
+    "sub_steps": [
+      "Create ReservationForm, ReservationList, and ReservationStatus components in src/components.",
+      "ReservationForm: Fields for all reservation data, real-time validation/errors, submit to backend.",
+      "ReservationList: Show all reservations, including status, with options to update/cancel.",
+      "ReservationStatus: Buttons for confirming/rejecting, communicates status changes.",
+      "Assign data-testid attributes per test requirements.",
+      "Apply accessible, user-friendly, responsive styling consistent with the restaurant components."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/ReservationForm.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/ReservationList.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/ReservationStatus.js"
+    ],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/App.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/App.css"
+    ],
+    "description": "These components provide all reservation features, form validation, and status management. Enables full cycle booking and management as required for test and business logic."
+  },
+  {
+    "step": "Implement Frontend API Integration and Routing",
+    "sub_steps": [
+      "Create RestaurantService.js and ReservationService.js in src/utils for API calls (use fetch).",
+      "Implement methods to fetch, create, update, delete for both entities.",
+      "Handle endpoints as per backend contract (http://localhost:8080).",
+      "Set up React Router routes in App.js for '/', '/restaurants/:id', '/reservations'.",
+      "Handle all standard error cases and messages per UI/UX requirements."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/utils/RestaurantService.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/utils/ReservationService.js"
+    ],
+    "files_to_edit": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/App.js"
+    ],
+    "description": "Separates UI from data access. All testable behaviors around data flow and API errors pass through these layers."
+  },
+  {
+    "step": "Implement ALL Provided Frontend Jest Test Cases for React Components",
+    "sub_steps": [
+      "For each frontend test case:",
+      "- testRestaurantListRendering: Test RestaurantList with mocked API, correct display, navigation.",
+      "- testReservationFormValidation: Validate ReservationForm for required and format errors, valid input acceptance.",
+      "- testRestaurantSearchFunctionality: Test RestaurantSearch for search, API call, and results rendering.",
+      "- testReservationStatusUpdate: Test ReservationStatus actions, API update, button state changes.",
+      "Use react-testing-library, mock fetch/global API calls, and clear test selector strategies (data-testid).",
+      "Ensure to create or add to corresponding *.test.js files in src/components."
+    ],
+    "files_to_add": [
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/RestaurantList.test.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/ReservationForm.test.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/RestaurantSearch.test.js",
+      "/home/coder/project/workspace/question_generation_service/solutions/2cfa029e-02f0-4a82-8338-b49851cb5ff9/reactapp/src/components/ReservationStatus.test.js"
+    ],
+    "files_to_edit": [],
+    "description": "Ensures frontend logic strictly meets requirements and passes all required UI and state management tests. Covers component rendering, interaction, validation, and integration with backend API."
+  },
+  {
+    "step": "Compile and Test Frontend (React)",
+    "sub_steps": [
+      "Run npm install to setup dependencies.",
+      "Run npm run build to compile the source code and check for errors.",
+      "Run npx eslint src/ --fix to auto-fix code issues.",
+      "Run npm run test:ci to execute all Jest/react-testing-library tests."
+    ],
+    "files_to_add": [],
+    "files_to_edit": [],
+    "description": "Verifies that the React frontend is functionally and visually complete, meets all UI/UX contracts, and passes all required tests."
+  }
+]
