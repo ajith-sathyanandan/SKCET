@@ -1,9 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: Inter, system-ui, Arial, sans-serif;
-  color: #1f2937;
-  background: #f4f7fb;
+  color: #e2e8f0;
+  background-color: #020617;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  color-scheme: dark;
 }
 
 * {
@@ -14,6 +19,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: #020617;
 }
 
 button,
@@ -25,4 +31,9 @@ textarea {
 
 a {
   color: inherit;
+}
+
+::selection {
+  color: #020617;
+  background: #fbbf24;
 }

@@ -1,16 +1,16 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes } from "react-router-dom";
 
 import AppLayout from "./components/layout/AppLayout";
-import ProtectedRoute from "./components/routing/ProtectedRoute";
-import RoleRoute from "./components/routing/RoleRoute";
-import AdminPage from "./pages/AdminPage";
-import DashboardPage from "./pages/DashboardPage";
+import PrivateRoute from "./components/routing/PrivateRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import DashboardRedirect from "./pages/DashboardRedirect";
+import CustomerDashboard from "./pages/CustomerDashboard";
 import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
+import Login from "./pages/Login";
 import NotFoundPage from "./pages/NotFoundPage";
-import OwnerPage from "./pages/OwnerPage";
+import OwnerDashboard from "./pages/OwnerDashboard";
 import ProfilePage from "./pages/ProfilePage";
-import RegisterPage from "./pages/RegisterPage";
+import Register from "./pages/Register";
 import RestaurantDetailsPage from "./pages/RestaurantDetailsPage";
 import RestaurantDiscoveryPage from "./pages/RestaurantDiscoveryPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
@@ -21,37 +21,27 @@ function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
+        <Route path="dashboard" element={<DashboardRedirect />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="dashboard" element={<DashboardPage />} />
+        <Route element={<PrivateRoute allowedRoles={["CUSTOMER"]} />}>
+          <Route path="customer/dashboard" element={<CustomerDashboard />} />
+        </Route>
+
+        <Route element={<PrivateRoute allowedRoles={["OWNER", "ADMIN"]} />}>
+          <Route path="owner/dashboard" element={<OwnerDashboard />} />
+        </Route>
+
+        <Route element={<PrivateRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="admin/dashboard" element={<AdminDashboard />} />
+        </Route>
+
+        <Route element={<PrivateRoute allowedRoles={["CUSTOMER", "OWNER", "ADMIN"]} />}>
           <Route path="profile" element={<ProfilePage />} />
-
-          <Route
-            path="restaurants"
-            element={<RestaurantDiscoveryPage />}
-          />
-
-          <Route
-            path="restaurants/:restaurantId"
-            element={<RestaurantDetailsPage />}
-          />
-
-          <Route
-            element={
-              <RoleRoute allowedRoles={["OWNER", "ADMIN"]} />
-            }
-          >
-            <Route path="owner" element={<OwnerPage />} />
-          </Route>
-
-          <Route
-            element={<RoleRoute allowedRoles={["ADMIN"]} />}
-          >
-            <Route path="admin" element={<AdminPage />} />
-          </Route>
+          <Route path="restaurants" element={<RestaurantDiscoveryPage />} />
+          <Route path="restaurants/:restaurantId" element={<RestaurantDetailsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

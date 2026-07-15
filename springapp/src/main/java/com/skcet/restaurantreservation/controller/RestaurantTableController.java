@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.skcet.restaurantreservation.dto.RestaurantTableRequest;
@@ -26,6 +27,7 @@ public class RestaurantTableController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<RestaurantTableResponse> createTable(
             @PathVariable Long restaurantId,
             @Valid @RequestBody RestaurantTableRequest request,
@@ -36,6 +38,7 @@ public class RestaurantTableController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<RestaurantTableResponse>> getAllTables(@PathVariable Long restaurantId) {
         List<RestaurantTableResponse> responses = tableService.getTablesByRestaurant(restaurantId)
                 .stream()
@@ -45,6 +48,7 @@ public class RestaurantTableController {
     }
 
     @PutMapping("/{tableId}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<RestaurantTableResponse> updateTable(
             @PathVariable Long restaurantId,
             @PathVariable Long tableId,
@@ -56,6 +60,7 @@ public class RestaurantTableController {
     }
 
     @DeleteMapping("/{tableId}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Void> deleteTable(
             @PathVariable Long restaurantId,
             @PathVariable Long tableId,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams } from "react-router-dom";
 
 import { ApiClientError } from "../services/apiClient";
 import { restaurantService } from "../services/restaurantService";

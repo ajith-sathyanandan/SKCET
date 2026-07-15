@@ -37,8 +37,7 @@ import com.skcet.restaurantreservation.service.JwtService;
 @AutoConfigureMockMvc
 class RestaurantUserManagementAcceptanceTest {
 
-    private static final String CURRENT_PASSWORD =
-            "CurrentPass123";
+    private static final String PASSWORD = "StrongPass123";
 
     private static final String NEW_PASSWORD =
             "NewSecurePass123";
@@ -86,28 +85,28 @@ class RestaurantUserManagementAcceptanceTest {
                 "Owner " + uniqueValue,
                 "owner-" + uniqueValue + "@example.com",
                 UserRole.OWNER,
-                CURRENT_PASSWORD
+                PASSWORD
         );
 
         secondOwner = createUser(
                 "Second Owner " + uniqueValue,
                 "second-owner-" + uniqueValue + "@example.com",
                 UserRole.OWNER,
-                CURRENT_PASSWORD
+                PASSWORD
         );
 
         customer = createUser(
                 "Customer " + uniqueValue,
                 "customer-" + uniqueValue + "@example.com",
                 UserRole.CUSTOMER,
-                CURRENT_PASSWORD
+                PASSWORD
         );
 
         admin = createUser(
                 "Admin " + uniqueValue,
                 "admin-" + uniqueValue + "@example.com",
                 UserRole.ADMIN,
-                CURRENT_PASSWORD
+                PASSWORD
         );
 
         ownerToken = jwtService.generateToken(owner);
@@ -499,7 +498,7 @@ class RestaurantUserManagementAcceptanceTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                          "currentPassword": "CurrentPass123",
+                                          "currentPassword": "StrongPass123",
                                           "newPassword": "NewSecurePass123"
                                         }
                                         """)
@@ -528,7 +527,7 @@ class RestaurantUserManagementAcceptanceTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginJson(
                                         customer.getEmail(),
-                                        CURRENT_PASSWORD
+                                        PASSWORD
                                 ))
                 )
                 .andExpect(status().isUnauthorized());

@@ -13,6 +13,10 @@ export function saveSession(session) {
     AUTH_SESSION_KEY,
     JSON.stringify(session),
   );
+
+  if (session?.accessToken) {
+    window.localStorage.setItem("token", session.accessToken);
+  }
 }
 
 export function readSession() {
@@ -56,6 +60,7 @@ export function clearSession() {
   }
 
   window.localStorage.removeItem(AUTH_SESSION_KEY);
+  window.localStorage.removeItem("token");
 }
 
 export { AUTH_SESSION_KEY };

@@ -3,7 +3,7 @@ import {
   MemoryRouter,
   Route,
   Routes,
-} from "react-router";
+} from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import ProtectedRoute from "../components/routing/ProtectedRoute";

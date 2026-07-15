@@ -3,29 +3,40 @@ package com.skcet.restaurantreservation.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.skcet.restaurantreservation.dto.RestaurantTableRequest;
 import com.skcet.restaurantreservation.entity.Restaurant;
 import com.skcet.restaurantreservation.entity.RestaurantTable;
+import com.skcet.restaurantreservation.entity.User;
+import com.skcet.restaurantreservation.entity.UserRole;
 import com.skcet.restaurantreservation.exception.RestaurantAccessDeniedException;
 import com.skcet.restaurantreservation.exception.RestaurantNotFoundException;
 import com.skcet.restaurantreservation.repository.RestaurantRepository;
 import com.skcet.restaurantreservation.repository.RestaurantTableRepository;
+import com.skcet.restaurantreservation.repository.UserRepository;
 
 @Service
 public class RestaurantTableService {
 
     private final RestaurantTableRepository tableRepository;
     private final RestaurantRepository restaurantRepository;
+    private final UserRepository userRepository;
 
-    public RestaurantTableService(RestaurantTableRepository tableRepository, RestaurantRepository restaurantRepository) {
+    public RestaurantTableService(
+            RestaurantTableRepository tableRepository,
+            RestaurantRepository restaurantRepository,
+            UserRepository userRepository
+    ) {
         this.tableRepository = tableRepository;
         this.restaurantRepository = restaurantRepository;
+        this.userRepository = userRepository;
     }
 
     public RestaurantTable addTable(Long restaurantId, RestaurantTableRequest request, String username) {
-        Restaurant restaurant = getAndValidateOwner(restaurantId, username);
+        Restaurant restaurant = getAndValidateManager(restaurantId, username);
         validateTableData(restaurantId, request.tableNumber(), request.capacity(), null);
 
         RestaurantTable table = new RestaurantTable(restaurant, request.tableNumber(), request.capacity());
@@ -40,7 +51,7 @@ public class RestaurantTableService {
     }
 
     public RestaurantTable updateTable(Long restaurantId, Long tableId, RestaurantTableRequest request, String username) {
-        getAndValidateOwner(restaurantId, username);
+        getAndValidateManager(restaurantId, username);
         
         RestaurantTable table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Table not found with ID: " + tableId));
@@ -57,7 +68,7 @@ public class RestaurantTableService {
     }
 
     public void deleteTable(Long restaurantId, Long tableId, String username) {
-        getAndValidateOwner(restaurantId, username);
+        getAndValidateManager(restaurantId, username);
         
         RestaurantTable table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Table not found with ID: " + tableId));
@@ -71,14 +82,32 @@ public class RestaurantTableService {
 
     // --- Helper Methods ---
 
-    private Restaurant getAndValidateOwner(Long restaurantId, String username) {
+    private Restaurant getAndValidateManager(Long restaurantId, String username) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RestaurantNotFoundException(restaurantId)); // Fixed to pass Long
-        
-        if (!restaurant.getOwner().getEmail().equals(username)) {
+
+        User currentUser = findCurrentUser(username);
+
+        if (currentUser.getRole() == UserRole.ADMIN) {
+            return restaurant;
+        }
+
+        if (!restaurant.getOwner().getEmail().equalsIgnoreCase(username)) {
             throw new RestaurantAccessDeniedException(); // Fixed to pass no arguments
         }
         return restaurant;
+    }
+
+    private User findCurrentUser(String username) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String effectiveUsername = username;
+        if (authentication != null && authentication.getName() != null) {
+            effectiveUsername = authentication.getName();
+        }
+
+        return userRepository.findByEmailIgnoreCase(effectiveUsername)
+                .orElseThrow(RestaurantAccessDeniedException::new);
     }
 
     private void validateTableData(Long restaurantId, Integer tableNumber, Integer capacity, Long existingTableId) {

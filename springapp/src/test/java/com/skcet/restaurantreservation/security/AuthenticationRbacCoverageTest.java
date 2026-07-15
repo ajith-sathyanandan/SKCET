@@ -69,6 +69,7 @@ class AuthenticationRbacCoverageTest {
     private User customer;
     private User owner;
     private User admin;
+    private User anotherAdmin;
 
     @BeforeEach
     void prepareUsers() {
@@ -89,6 +90,12 @@ class AuthenticationRbacCoverageTest {
         admin = createUser(
                 "Administrator",
                 "admin@example.com",
+                UserRole.ADMIN
+        );
+
+        anotherAdmin = createUser(
+                "Second Admin",
+                "admin2@example.com",
                 UserRole.ADMIN
         );
     }

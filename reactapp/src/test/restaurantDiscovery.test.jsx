@@ -9,7 +9,7 @@ import {
   MemoryRouter,
   Route,
   Routes,
-} from "react-router";
+} from "react-router-dom";
 import {
   beforeEach,
   describe,
